@@ -1,6 +1,6 @@
 # OpenStation C245/C210
 
-**Firmware mã nguồn mở cho trạm hàn "Trạm hàn v4" — dành cho tay hàn JBC C245 và C210.**
+**Firmware mã nguồn mở cho trạm hàn "Trạm hàn v4 by Toanthodien16" — dành cho tay hàn JBC C245 và C210.**
 
 Giao diện ngang rõ nét, điều khiển nhiệt ổn định trên dải nguồn 10–28 V, Boost / Sleep đầy đủ, nhớ cài đặt sau khi tắt nguồn.
 
