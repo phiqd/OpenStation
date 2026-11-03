@@ -81,7 +81,7 @@ Sơ đồ chân mà firmware sử dụng: [docs/HARDWARE.md](docs/HARDWARE.md).
 
 ## Nạp firmware
 
-1. Tải file `.hex` ở mục **Releases** của repo (khi có), hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
+1. Tải file nạp trong thư mục [`firmware/`](firmware/): [`.hex`](firmware/OpenStation-C245-C210-v1.6.1.hex) hoặc [`.bin`](firmware/OpenStation-C245-C210-v1.6.1.bin) (bấm vào file rồi chọn **Download raw file**). Hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
 2. Nối WCH-LinkE vào cổng nạp của mạch.
 3. Nạp bằng một trong hai cách:
    - **WCH-LinkUtility:** chọn chip CH32X033, mở file `.hex` rồi bấm nạp. Nếu dùng file `.bin` thì nạp ở địa chỉ `0x08000000`.
@@ -248,6 +248,7 @@ src/, include/     mã nguồn firmware
   st7735*.c        driver màn hình
 ld/linker.ld       bố trí flash (60 KB code + 2 KB cài đặt)
 tools/             build.sh, gen_fonts.py, gen_logo.py
+firmware/          file nạp .hex / .bin đã build sẵn
 sim/               mô phỏng, benchmark PID, test cài đặt
 docs/              sơ đồ chân, ảnh minh họa
 ```
