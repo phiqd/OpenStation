@@ -1,6 +1,6 @@
 # OpenStation hardware map
 
-This page records **what 0.1.0 Build 14 configures and assumes** on the CH32X033F8P6 board. It is not a board acceptance test. Pin assignments are taken from [`board.h`](../include/board.h), [`board.c`](../src/board.c), and the [ST7735 I/O port](../src/ch32x033_st7735_io.c). Earlier pin notes in [`scrap/`](../scrap/) are historical and can disagree with current firmware, especially for PC3. Build 14 changes boost controls and UI without changing the pin map or heater cycle.
+This page records **what the hardware is assumed to be** (unchanged from 0.1.0 Build 14) on the CH32X033F8P6 board. It is not a board acceptance test. Pin assignments are taken from [`board.h`](../include/board.h), [`board.c`](../src/board.c), and the [ST7735 I/O port](../src/ch32x033_st7735_io.c). Earlier pin notes in [`scrap/`](../scrap/) are historical and can disagree with current firmware, especially for PC3. Build 14 changes boost controls and UI without changing the pin map or heater cycle.
 
 ## Implemented signals
 

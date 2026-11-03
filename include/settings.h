@@ -4,8 +4,9 @@
 #include <stdbool.h>
 
 void settings_init(void);
+/* Writes flash only when something differs from the stored record. */
 bool settings_save(void);
-void settings_discard(void);
+bool settings_dirty(void);
 void settings_factory_defaults(void);
 bool settings_loaded_from_flash(void);
 bool settings_tip_warning_enabled(void);

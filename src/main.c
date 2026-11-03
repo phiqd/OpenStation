@@ -12,6 +12,39 @@
 
 static ST7735_Object_t s_lcd;
 
+static void handle_inputs(void)
+{
+    int8_t rotation = input_take_rotation();
+    button_event_t event = input_take_button_event();
+    if (rotation == 0 && event == BUTTON_EVENT_NONE) return;
+    ui_note_input();
+    board_buzzer_pattern(1);
+
+    if (rotation != 0 && !ui_popup_active()) {
+        if (ui_settings_active()) ui_settings_rotate(rotation);
+        else ui_main_rotate(rotation);
+    }
+
+    switch (event) {
+    case BUTTON_EVENT_SHORT:
+        if (ui_popup_active()) ui_popup_dismiss();
+        else if (ui_settings_active()) ui_settings_press();
+        else ui_main_press();
+        break;
+    case BUTTON_EVENT_DOUBLE:
+        /* Boost while heating, preset cycling while off. */
+        if (!ui_popup_active() && !ui_settings_active()) control_double_press();
+        break;
+    case BUTTON_EVENT_LONG:
+        control_long_press();
+        if (ui_settings_active()) ui_close_settings();
+        else ui_open_settings();
+        break;
+    default:
+        break;
+    }
+}
+
 int main(void)
 {
     uint32_t last_ui = 0;
@@ -20,7 +53,7 @@ int main(void)
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 
     board_safe_boot();
-    if (CH32_ST7735_Init(&s_lcd, ST7735_ORIENTATION_PORTRAIT) != ST7735_OK) {
+    if (CH32_ST7735_Init(&s_lcd, ST7735_ORIENTATION_LANDSCAPE) != ST7735_OK) {
         while (1) { board_heater_gpio_off(); }
     }
     ST7735_ClearRawRAM(&s_lcd, COLOR_BLACK);
@@ -39,36 +72,9 @@ int main(void)
 
     while (1) {
         measure_process();
+        handle_inputs();
 
-        int8_t rotation = input_take_rotation();
-        if (rotation != 0) {
-            board_buzzer_pattern(1);
-            if (!ui_fault_popup_active() && !ui_boot_warning_active()) {
-                if (ui_settings_active()) ui_settings_rotate(rotation);
-                else control_rotate(rotation);
-            }
-        }
-        button_event_t event = input_take_button_event();
-        if (event != BUTTON_EVENT_NONE) board_buzzer_pattern(1);
-        if (event == BUTTON_EVENT_SHORT) {
-            if (ui_fault_popup_active()) ui_dismiss_fault_popup();
-            else if (ui_boot_warning_active()) ui_dismiss_boot_warning();
-            else if (ui_settings_active()) ui_settings_press();
-            else control_short_press();
-        }
-        else if (event == BUTTON_EVENT_DOUBLE) {
-            if (!ui_fault_popup_active() && !ui_boot_warning_active()) {
-                if (ui_settings_active()) ui_settings_double_press();
-                else control_double_press();
-            }
-        }
-        else if (event == BUTTON_EVENT_LONG && !ui_boot_warning_active()) {
-            control_long_press();
-            ui_toggle_page();
-        }
-
-        bool new_sample = measure_take_new_quiet_sample();
-        if (new_sample) control_run_cycle();
+        if (measure_take_new_quiet_sample()) control_run_cycle();
         if (power_take_cycle_event()) {
             const control_status_t *c = control_get();
             safety_supervise((uint8_t)c->state, c->heating_enabled);
@@ -79,6 +85,7 @@ int main(void)
             last_ui = now;
             ui_render();
         }
+        ui_animate();
         board_watchdog_feed();
     }
 }

@@ -115,7 +115,7 @@ void power_request(uint16_t duty_permille)
     }
     s_status.pulse_us = (uint16_t)(s_status.pulse_ticks * 10U);
 #if STATION_HEATER_OUTPUT_ENABLE
-    s_status.output_armed = (p->characterized != 0U) || STATION_SERVICE_ALLOW_UNCHARACTERIZED;
+    s_status.output_armed = true;
 #else
     s_status.output_armed = false;
 #endif

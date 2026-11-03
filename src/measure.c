@@ -1,7 +1,6 @@
 #include "measure.h"
 #include "app_config.h"
 #include "board.h"
-#include "control.h"
 #include "power.h"
 #include "profiles.h"
 #include "safety.h"
@@ -42,17 +41,6 @@ static uint16_t s_temp_history[3];
 static uint16_t s_vin_history[3];
 static uint8_t s_history_index;
 static bool s_history_primed;
-static bool s_drop_compensation_enabled;
-static bool s_drop_active;
-static int16_t s_drop_peak_c;
-static int16_t s_drop_reference_c;
-static uint32_t s_drop_peak_ms;
-
-#define TEMP_DROP_COMPENSATION_C 300
-#define TEMP_DROP_WINDOW_MS 400UL
-#define TEMP_DROP_MIN_C 230
-#define TEMP_DROP_MAX_C 370
-
 void ADC1_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 
 static uint16_t median3(uint16_t a, uint16_t b, uint16_t c)
@@ -84,7 +72,7 @@ static int16_t temperature_base_from_raw(uint16_t raw, const tip_profile_t *p)
 {
     uint32_t temp_uv = adc_raw_to_uv(raw);
     int32_t temp = p->temp_uv_per_c ?
-        (int32_t)(temp_uv / p->temp_uv_per_c) + p->temp_offset_c : 0;
+        (int32_t)(temp_uv / p->temp_uv_per_c) + profile_ambient_c() : 0;
     if (temp < -20) temp = -20;
     if (temp > 550) temp = 550;
     return (int16_t)temp;
@@ -155,9 +143,6 @@ void measure_profile_changed(void)
     measure_requalify_quiet_sample();
     s_history_primed = false;
     s_data.temperature_c = 0;
-    s_drop_active = false;
-    s_drop_peak_ms = 0;
-    s_data.temperature_compensated = false;
 }
 
 void measure_requalify_quiet_sample(void)
@@ -168,15 +153,6 @@ void measure_requalify_quiet_sample(void)
     s_data.quiet_sample_valid = false;
     s_data.sample_time_ms = board_millis();
     s_new_quiet = false;
-}
-
-bool measure_drop_compensation_enabled(void) { return s_drop_compensation_enabled; }
-void measure_set_drop_compensation_enabled(bool enabled)
-{
-    s_drop_compensation_enabled = enabled;
-    s_drop_active = false;
-    s_drop_peak_ms = 0;
-    s_data.temperature_compensated = false;
 }
 
 void measure_current_eoc_isr(uint16_t raw)
@@ -234,7 +210,7 @@ void measure_process(void)
     s_data.temp_raw = temp_raw;
     s_data.temp_burst_min_raw = temp_min;
     s_data.temp_burst_max_raw = temp_max;
-    s_data.temp_burst_span_raw = temp_max >= temp_min ? temp_max - temp_min : 0U;
+    s_data.temp_burst_span_raw = temp_max >= temp_min ? (uint16_t)(temp_max - temp_min) : (uint16_t)0U;
     s_data.vin_raw = vin_raw;
     s_data.off_current_raw = off_current_raw;
     /* Track the op-amp zero only near its current baseline. A real off-state
@@ -251,7 +227,7 @@ void measure_process(void)
 
     /* Calibrated board divider ratio. */
     uint32_t pin_mv = ((uint32_t)s_data.vin_filtered_raw * STATION_ADC_VREF_MV) / STATION_ADC_FULL_SCALE;
-    s_data.vin_mv = pin_mv * STATION_VIN_DIVIDER_RATIO;
+    s_data.vin_mv = (pin_mv * STATION_VIN_DIVIDER_X10) / 10UL;
     s_data.adc_pin_mv = (uint16_t)(((uint32_t)s_data.temp_filtered_raw * STATION_ADC_VREF_MV) / STATION_ADC_FULL_SCALE);
     s_data.vin_valid = profile_supply_in_range(s_data.vin_mv);
     power_record_cycle_measurement(s_data.current_ma, s_data.vin_mv,
@@ -260,35 +236,8 @@ void measure_process(void)
     if (s_data.temp_raw >= TIP_OPEN_RAW) s_data.tip_present = false;
     else if (s_data.temp_raw <= TIP_PRESENT_RAW) s_data.tip_present = true;
 
-    /* Experimental correction for the repeatable ~300 C PA1 collapse. Only
-     * arm after a hot reading drops by roughly that amount within 400 ms;
-     * never infer a temperature from an open or near-zero sensor signal. */
     uint32_t now = board_millis();
-    int16_t uncorrected = s_data.temperature_uncorrected_c;
-    bool sensor_usable = s_data.tip_present && s_data.temp_raw >= 8U;
-    if (!s_drop_compensation_enabled || !sensor_usable) {
-        s_drop_active = false;
-        s_drop_peak_ms = 0;
-    } else if (!s_drop_active) {
-        if (s_drop_peak_ms != 0U && now - s_drop_peak_ms <= TEMP_DROP_WINDOW_MS &&
-            control_get()->heating_enabled && s_drop_peak_c >= 250 &&
-            s_drop_peak_c - uncorrected >= TEMP_DROP_MIN_C &&
-            s_drop_peak_c - uncorrected <= TEMP_DROP_MAX_C) {
-            s_drop_active = true;
-            s_drop_reference_c = s_drop_peak_c;
-        } else if (s_drop_peak_ms == 0U || now - s_drop_peak_ms > TEMP_DROP_WINDOW_MS ||
-                   uncorrected > s_drop_peak_c) {
-            s_drop_peak_c = uncorrected;
-            s_drop_peak_ms = now;
-        }
-    } else if (uncorrected >= s_drop_reference_c - 80) {
-        s_drop_active = false;
-        s_drop_peak_c = uncorrected;
-        s_drop_peak_ms = now;
-    }
-    s_data.temperature_compensated = s_drop_active;
-    s_data.temperature_c = (int16_t)(uncorrected +
-        (s_drop_active ? TEMP_DROP_COMPENSATION_C : 0));
+    s_data.temperature_c = s_data.temperature_uncorrected_c;
 
     s_data.resistance_mohm = s_data.current_ma > 50U ? (s_data.vin_mv * 1000UL) / s_data.current_ma : 0;
     s_data.sample_time_ms = now;

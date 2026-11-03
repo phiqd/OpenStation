@@ -1,6 +1,5 @@
 #include "board.h"
 #include "app_config.h"
-#include "control.h"
 #include "encoder.h"
 
 static volatile uint32_t s_ms;
@@ -167,7 +166,6 @@ void board_tick_isr(void)
         s_buzzer_phase = 0;
     }
     input_tick_isr();
-    control_tick_1ms();
 }
 
 void TIM2_UP_IRQHandler(void)

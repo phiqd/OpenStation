@@ -28,8 +28,6 @@ void safety_trip(safety_fault_t code, uint8_t state);
 void safety_trip_isr(safety_fault_t code);
 void safety_supervise(uint8_t state, bool heating_requested);
 bool safety_acknowledge(void);
-bool safety_ignore_faults(void);
-void safety_set_ignore_faults(bool enabled);
 bool safety_latched(void);
 safety_fault_t safety_fault(void);
 const char *safety_fault_text(safety_fault_t code);

@@ -3,22 +3,24 @@
 
 /* PB7 high drives Q1, which pulls the high-side P-channel MOSFET gate low. */
 #define STATION_HEATER_OUTPUT_ENABLE 1
-#define STATION_SERVICE_ALLOW_UNCHARACTERIZED 1
 
 /* Release version and separate hardware-debug build counter. */
-#define STATION_FW_VERSION "0.1.0"
-#define STATION_FW_BUILD   14U
+#define STATION_FW_NAME "OpenStation C245/C210"
+#define STATION_FW_VERSION "1.6.1"
+#define STATION_FW_BUILD   1U
 #define STATION_ADC_VREF_MV 3300UL
 #define STATION_ADC_FULL_SCALE 4095UL
-#define STATION_VIN_DIVIDER_RATIO 16.3f
+/* VIN divider ratio x10 (16.3), kept integer to avoid soft-float code. */
+#define STATION_VIN_DIVIDER_X10 163UL
 /* Original PA6 current-sense transfer coefficient. */
 #define CURRENT_SENSE_UV_PER_MA 340UL
 #define STATION_MAX_TARGET_C 500
 #define STATION_OVERTEMP_C 515
 #define STATION_STAND_ACTIVE_LEVEL 0U
 #define STATION_VIB_ACTIVE_LEVEL 0U
-#define STATION_SLEEP_DELAY_MS 5000UL
-#define STATION_SLEEP_TIME_S 1200U
+#define STATION_SLEEP_DELAY_S 5U
+#define STATION_SLEEP_TEMP_C 150
+#define STATION_SLEEP_OFF_MIN 20U
 
 /* TIM1 uses a 100 kHz base and a 50 ms heater cycle. Temperature is sampled
  * a fixed 5 ms after the actual heater pulse ends, rather than at a fixed
@@ -50,7 +52,9 @@
 #define CONTROL_STALE_MS 200U
 #define TIP_OPEN_RAW 3900U
 #define TIP_PRESENT_RAW 3800U
-#define VIN_MIN_MV 9000U
-#define VIN_MAX_MV 30000U
+/* Accepted supply window for both handles. Duty is additionally limited by
+ * each tip's rated voltage and power, so 28 V never exceeds those limits. */
+#define VIN_MIN_MV 10000U
+#define VIN_MAX_MV 28000U
 
 #endif

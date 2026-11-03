@@ -17,15 +17,12 @@ typedef struct {
     bool tip_present, vin_valid, quiet_sample_valid, current_sample_valid;
     bool off_current_sample_valid;
     bool current_sample_heater_on;
-    bool temperature_compensated;
 } measurement_t;
 
 void measure_init(void);
 void measure_process(void);
 void measure_profile_changed(void);
 void measure_requalify_quiet_sample(void);
-bool measure_drop_compensation_enabled(void);
-void measure_set_drop_compensation_enabled(bool enabled);
 const measurement_t *measure_get(void);
 bool measure_take_new_quiet_sample(void);
 void measure_current_eoc_isr(uint16_t raw);
