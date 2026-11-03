@@ -11,11 +11,11 @@ Giao diện ngang rõ nét, điều khiển nhiệt ổn định trên dải ngu
 </p>
 <p align="center">
   <img src="docs/images/01_splash.png" width="32%" alt="Khởi động">
-  <img src="docs/images/08_settings.png" width="32%" alt="Cài đặt">
-  <img src="docs/images/rolling_digits.gif" width="32%" alt="Số chạy">
+  <img src="docs/images/10a_settings.png" width="32%" alt="Cài đặt">
+  <img src="docs/images/anim_heatup_rolling.gif" width="32%" alt="Số chạy">
 </p>
 
-<sub>Ảnh được vẽ bằng chính code giao diện của firmware chạy trong bộ mô phỏng trên máy tính (`sim/run.sh`), phóng to 3 lần.</sub>
+<sub>Ảnh được vẽ bằng chính code giao diện của firmware chạy trong bộ mô phỏng trên máy tính (`sim/run.sh`). Xem **[tất cả các màn hình và ảnh động](docs/SCREENS.md)**.</sub>
 
 > English summary at the [end of this page](#english-summary).
 
@@ -81,7 +81,7 @@ Sơ đồ chân mà firmware sử dụng: [docs/HARDWARE.md](docs/HARDWARE.md).
 
 ## Nạp firmware
 
-1. Tải file nạp trong thư mục [`firmware/`](firmware/): [`.hex`](firmware/OpenStation-C245-C210-v1.6.1.hex) hoặc [`.bin`](firmware/OpenStation-C245-C210-v1.6.1.bin) (bấm vào file rồi chọn **Download raw file**). Hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
+1. Tải file nạp trong thư mục [`firmware/`](firmware/): [`.hex`](firmware/OpenStation-C245-C210-v1.6.2.hex) hoặc [`.bin`](firmware/OpenStation-C245-C210-v1.6.2.bin) (bấm vào file rồi chọn **Download raw file**). Hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
 2. Nối WCH-LinkE vào cổng nạp của mạch.
 3. Nạp bằng một trong hai cách:
    - **WCH-LinkUtility:** chọn chip CH32X033, mở file `.hex` rồi bấm nạp. Nếu dùng file `.bin` thì nạp ở địa chỉ `0x08000000`.
@@ -120,10 +120,12 @@ Cài đặt được lưu ở 2 KB cuối flash. Nạp bản mới thì cài đ�
 | Logo | Tắt nung, hoặc hết giờ Sleep (đèn dịu) | Logo, kèm "Tip hot" khi mũi còn trên 60 °C |
 | Lỗi | Khi có lỗi an toàn | Tên lỗi, nguyên nhân, số đo lúc lỗi |
 
+Ảnh từng màn hình: [docs/SCREENS.md](docs/SCREENS.md).
+
 <p align="center">
-  <img src="docs/images/02b_logo_hot.png" width="32%" alt="Logo khi tắt nung">
-  <img src="docs/images/11_cal_wizard.png" width="32%" alt="Hiệu chuẩn">
-  <img src="docs/images/14_fault.png" width="32%" alt="Lỗi">
+  <img src="docs/images/07a_logo_hot.png" width="32%" alt="Logo khi tắt nung">
+  <img src="docs/images/11b_cal_wizard.png" width="32%" alt="Hiệu chuẩn">
+  <img src="docs/images/13_fault.png" width="32%" alt="Lỗi">
 </p>
 
 ## Cài đặt
@@ -250,10 +252,10 @@ ld/linker.ld       bố trí flash (60 KB code + 2 KB cài đặt)
 tools/             build.sh, gen_fonts.py, gen_logo.py
 firmware/          file nạp .hex / .bin đã build sẵn
 sim/               mô phỏng, benchmark PID, test cài đặt
-docs/              sơ đồ chân, ảnh minh họa
+docs/              sơ đồ chân, ảnh minh họa, SCREENS.md (tất cả màn hình)
 ```
 
-**Bộ nhớ (bản 1.6.1):** khoảng 51 KB / 60 KB flash dành cho code, khoảng 15 KB / 20 KB RAM.
+**Bộ nhớ (bản 1.6.2):** khoảng 51 KB / 60 KB flash dành cho code, khoảng 15 KB / 20 KB RAM.
 
 ## Lưu ý an toàn
 

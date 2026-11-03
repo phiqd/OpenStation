@@ -70,6 +70,7 @@ static void shot(const char *name)
 
 /* ---------------- main-loop emulation ---------------- */
 static ST7735_Object_t g_lcd;
+static uint32_t g_last_render_ms;
 static void run_ms(uint32_t ms)
 {
     for (uint32_t t = 0; t < ms; t += 50) {
@@ -77,7 +78,7 @@ static void run_ms(uint32_t ms)
         control_run_cycle();
         const control_status_t *c = control_get();
         safety_supervise((uint8_t)c->state, c->heating_enabled);
-        if ((g_ms % 100) == 0) ui_render();
+        if (g_ms - g_last_render_ms >= 100) { g_last_render_ms = g_ms; ui_render(); }
         ui_animate();
     }
 }
@@ -149,9 +150,15 @@ int main(void)
     in_click(); run_ms(300);
     check(!control_get()->heating_enabled, "click turns it off");
 
-    /* Heat to 300 C */
+    /* Heat to 300 C; record the rolling tip temperature as GIF frames */
     in_click();
-    run_ms(12000);
+    for (int f = 0; f < 110; ++f) {
+        run_ms(50);
+        char name[32]; snprintf(name, sizeof(name), "gif_heat_%03d", f);
+        shot(name);
+        if (f == 30) shot("03a_main_heating");
+    }
+    run_ms(6500);
     check(control_get()->state == STATE_REGULATE, "regulating at 300 (%s, %.0f C)", st(), g_t_heater);
     check(fabs(g_t_heater - 300.0) < 6.0, "tip within 6 C of 300 (%.1f)", g_t_heater);
     /* A solder joint pulls heat for 3 s, then the tip recovers */
@@ -161,6 +168,7 @@ int main(void)
     /* Boost: +50 C, timer counts only after reaching 350 C */
     in_double();
     run_ms(300);
+    shot("04a_boost_heating");
     check(control_get()->state == STATE_BOOST && !control_get()->boost_reached,
           "boost heating, timer not started (%s)", st());
     check(control_boost_remaining_s() == 30, "shows full 30 s while heating (%u)", control_boost_remaining_s());
@@ -250,6 +258,14 @@ int main(void)
     /* Settings */
     in_long(); run_ms(300);
     shot("08_settings");
+    for (int i = 0; i < 8; ++i) in_rotate(1);
+    run_ms(300);
+    shot("08b_settings_page2");
+    for (int i = 0; i < 8; ++i) in_rotate(1);
+    run_ms(300);
+    shot("08c_settings_page3");
+    for (int i = 0; i < 16; ++i) in_rotate(-1);
+    run_ms(300);
     in_click(); in_rotate(1); run_ms(300);
     shot("09_settings_edit_handle");
     in_click(); run_ms(300);

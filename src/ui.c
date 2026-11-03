@@ -428,6 +428,7 @@ static void draw_main_static(void)
  * slide (up when the value rises, down when it falls), eased over ROLL_MS.
  * ui_animate() redraws the active rollers at ~50 frames per second. */
 #define ROLL_MS        180U
+#define ROLL_FAST_MS   100U
 #define ROLL_FRAME_MS  20U
 typedef struct {
     uint16_t x, y, w, h;
@@ -436,10 +437,11 @@ typedef struct {
     uint16_t fg, bg;
     int8_t dir;
     uint32_t start_ms;
+    uint16_t dur_ms;
     bool active, valid;
 } roller_t;
-static roller_t s_roll_temp = {94, 16, 66, 28, F_BIG, "", "", 0, 0, 1, 0, false, false};
-static roller_t s_roll_set = {118, 44, 42, 14, F_MID, "", "", 0, 0, 1, 0, false, false};
+static roller_t s_roll_temp = {94, 16, 66, 28, F_BIG, "", "", 0, 0, 1, 0, ROLL_MS, false, false};
+static roller_t s_roll_set = {118, 44, 42, 14, F_MID, "", "", 0, 0, 1, 0, ROLL_MS, false, false};
 static uint32_t s_anim_last_ms;
 
 static void rollers_invalidate(void)
@@ -464,9 +466,9 @@ static void roller_draw(roller_t *r, uint32_t now)
 {
     const aa_font_t *f = font_of(r->font);
     uint32_t el = now - r->start_ms;
-    bool anim = r->active && el < ROLL_MS;
+    bool anim = r->active && el < r->dur_ms;
     if (!anim) r->active = false;
-    int32_t p = anim ? (int32_t)((el * 1000UL) / ROLL_MS) : 1000;
+    int32_t p = anim ? (int32_t)((el * 1000UL) / r->dur_ms) : 1000;
     int32_t eased = 1000 - ((1000 - p) * (1000 - p)) / 1000;      /* ease-out */
     int16_t shift = (int16_t)((eased * (int32_t)r->h) / 1000);
     int16_t gy = (int16_t)(((int16_t)r->h - (int16_t)f->height) / 2);
@@ -505,6 +507,8 @@ static void roller_set(roller_t *r, const char *text, uint16_t fg, uint16_t bg)
         strcpy(r->prev, r->cur);                 /* a running roll snaps to its target */
         strncpy(r->cur, text, sizeof(r->cur) - 1U); r->cur[sizeof(r->cur) - 1U] = '\0';
         r->dir = (int8_t)(new_v >= old_v ? 1 : -1);
+        /* Back-to-back changes roll faster so the digits still settle. */
+        r->dur_ms = (uint16_t)(now - r->start_ms < 2U * ROLL_MS ? ROLL_FAST_MS : ROLL_MS);
         r->start_ms = now;
         r->active = true;
         r->fg = fg; r->bg = bg;
@@ -516,17 +520,27 @@ static void roller_set(roller_t *r, const char *text, uint16_t fg, uint16_t bg)
 }
 
 /* The displayed tip temperature ignores a 1-degree flicker unless it holds,
- * so the digits do not roll back and forth while the tip is regulated. */
+ * so the digits do not roll back and forth while the tip is regulated, and
+ * while it changes fast (heat-up, cooling) it updates at most every 250 ms so
+ * each value stays readable between rolls. */
+#define TEMP_FAST_UPDATE_MS 250U
 static int16_t s_shown_temp = -1000;
 static uint32_t s_temp_pending_ms;
+static uint32_t s_temp_shown_ms;
 static int16_t displayed_temp(int16_t t)
 {
     uint32_t now = board_millis();
     int16_t d = (int16_t)(t - s_shown_temp);
-    if (d >= 2 || d <= -2 || s_shown_temp == -1000) { s_shown_temp = t; s_temp_pending_ms = 0; }
-    else if (d != 0) {
+    if (s_shown_temp == -1000 ||
+        ((d >= 2 || d <= -2) && now - s_temp_shown_ms >= TEMP_FAST_UPDATE_MS)) {
+        s_shown_temp = t; s_temp_pending_ms = 0; s_temp_shown_ms = now;
+    } else if (d >= 2 || d <= -2) {
+        /* wait for the next fast-update slot */
+    } else if (d != 0) {
         if (s_temp_pending_ms == 0U) s_temp_pending_ms = now;
-        else if (now - s_temp_pending_ms >= 400U) { s_shown_temp = t; s_temp_pending_ms = 0; }
+        else if (now - s_temp_pending_ms >= 400U) {
+            s_shown_temp = t; s_temp_pending_ms = 0; s_temp_shown_ms = now;
+        }
     } else s_temp_pending_ms = 0;
     return s_shown_temp;
 }

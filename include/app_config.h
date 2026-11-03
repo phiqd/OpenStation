@@ -6,7 +6,7 @@
 
 /* Release version and separate hardware-debug build counter. */
 #define STATION_FW_NAME "OpenStation C245/C210"
-#define STATION_FW_VERSION "1.6.1"
+#define STATION_FW_VERSION "1.6.2"
 #define STATION_FW_BUILD   1U
 #define STATION_ADC_VREF_MV 3300UL
 #define STATION_ADC_FULL_SCALE 4095UL
