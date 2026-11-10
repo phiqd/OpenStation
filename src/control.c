@@ -298,6 +298,9 @@ static void run_pid(uint32_t now)
 #define FF_LEARN_WINDOW_MS  4000UL
 #define FF_K_MIN            40
 #define FF_K_MAX            600
+#ifndef PID_LOWV_GAIN_MAX
+#define PID_LOWV_GAIN_MAX   3U
+#endif
 #ifndef PID_I_BAND_C
 #define PID_I_BAND_C        15
 #endif
@@ -368,6 +371,18 @@ static void run_pid(uint32_t now)
     }
     int32_t error = (int32_t)s_control.active_setpoint_c - m->temperature_c;
     int32_t p_term = ((int32_t)p->kp_q8 * error) >> 8;
+    /* On a low supply the heater's full power is only a fraction of the
+     * 24 V reference, so the same P band would start throttling long before
+     * the slower-heating tip needs it and the last degrees crawl. While the
+     * tip is below the setpoint, steepen P by up to PID_LOWV_GAIN_MAX so full
+     * power is held until closer in. Above the setpoint the gain is
+     * unchanged, so holding behaviour and stability are as before. */
+    if (error > 0 && m->vin_mv >= 1000U && m->vin_mv < PID_REF_MV) {
+        uint32_t g_q8 = (uint32_t)((PID_REF_MV * PID_REF_MV * 256ULL) /
+                                   ((uint64_t)m->vin_mv * m->vin_mv));
+        if (g_q8 > PID_LOWV_GAIN_MAX * 256U) g_q8 = PID_LOWV_GAIN_MAX * 256U;
+        p_term = (int32_t)(((int64_t)p_term * g_q8) >> 8);
+    }
     uint32_t dt_ms = s_derivative_valid ? now - s_previous_sample_ms : 50U;
     bool dt_ok = dt_ms >= 10U && dt_ms <= CONTROL_STALE_MS;
     if (!s_derivative_valid) {

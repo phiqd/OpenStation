@@ -123,7 +123,7 @@ static result_t run(uint32_t vin_mv, uint8_t tip, const char *trace_path)
 
 int main(void)
 {
-    const uint32_t volts[] = {12000, 19000, 24000, 28000};
+    const uint32_t volts[] = {9000, 12000, 15000, 19000, 24000, 28000};
     printf("pid,tip,vin,reach_s,overshoot_c,tip340_s,tip_peak_c,settle_s,ripple_c,hold_err_c,hold_w,"
            "joint_droop_tip_c,joint_droop_meas_c,recover_s,step400_over_c,step350_under_c\n");
     for (uint8_t tip = 0; tip < TIP_COUNT; ++tip) {

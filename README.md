@@ -81,7 +81,7 @@ Sơ đồ chân mà firmware sử dụng: [docs/HARDWARE.md](docs/HARDWARE.md).
 
 ## Nạp firmware
 
-1. Tải file nạp trong thư mục [`firmware/`](firmware/): [`.hex`](firmware/OpenStation-C245-C210-v1.6.4.hex) hoặc [`.bin`](firmware/OpenStation-C245-C210-v1.6.4.bin) (bấm vào file rồi chọn **Download raw file**). Hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
+1. Tải file nạp trong thư mục [`firmware/`](firmware/): [`.hex`](firmware/OpenStation-C245-C210-v1.6.5.hex) hoặc [`.bin`](firmware/OpenStation-C245-C210-v1.6.5.bin) (bấm vào file rồi chọn **Download raw file**). Hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
 2. Nối WCH-LinkE vào cổng nạp của mạch.
 3. Nạp bằng một trong hai cách:
    - **WCH-LinkUtility:** chọn chip CH32X033, mở file `.hex` rồi bấm nạp. Nếu dùng file `.bin` thì nạp ở địa chỉ `0x08000000`.
@@ -160,6 +160,7 @@ Hệ số PID của tác giả cho C245 (Kp 8.0, Ki 2.0, Kd 0.5) được giữ 
 4. **Khâu D có lọc thông thấp**, giảm rung duty do nhiễu ADC.
 5. **Chống tràn tích phân** dựa trên công suất thực sự cấp được.
 6. **Bù nhiệt độ phòng** qua mục Room temp.
+7. **Giữ công suất tối đa lâu hơn ở nguồn thấp.** Dưới 24 V, khi mũi còn thấp hơn nhiệt đặt thì khâu P được tăng độ dốc (tối đa 3 lần), để máy không giảm công suất quá sớm. Ở 12 V, 20 °C cuối lên nhanh hơn và mũi hồi nhiệt sau mối hàn lớn nhanh hơn. Trên nhiệt đặt thì hệ số giữ nguyên.
 
 Kết quả mô phỏng (mô hình nhiệt 2 khối, `sim/pid_bench.sh`), C245 làm nóng từ 25 lên 350 °C:
 
@@ -257,7 +258,7 @@ sim/               mô phỏng, benchmark PID, test cài đặt
 docs/              sơ đồ chân, ảnh minh họa, SCREENS.md (tất cả màn hình)
 ```
 
-**Bộ nhớ (bản 1.6.4):** khoảng 51 KB / 60 KB flash dành cho code, khoảng 15 KB / 20 KB RAM.
+**Bộ nhớ (bản 1.6.5):** khoảng 51 KB / 60 KB flash dành cho code, khoảng 15 KB / 20 KB RAM.
 
 ## Lưu ý an toàn
 
