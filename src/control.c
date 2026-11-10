@@ -279,7 +279,7 @@ static void run_pid(uint32_t now)
  * power at PID_REF_MV (24 V), the voltage the original C245 gains were tuned
  * at. The request is converted to a duty cycle with the measured supply
  * voltage (duty = u * Vref^2 / Vin^2), so the loop gain is the same from
- * 10 V to 28 V. At 24 V the P, I and D terms are exactly the original ones.
+ * 9 V to 28 V. At 24 V the P, I and D terms are exactly the original ones.
  *
  * On top of PID:
  *  - feedforward: the power needed to hold a temperature is roughly

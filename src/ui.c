@@ -867,7 +867,7 @@ static const char *fault_detail(safety_fault_t f)
     case FAULT_SENSOR_SHORT: return "Temp signal too low";
     case FAULT_OVERTEMP: return "Tip above limit";
     case FAULT_OFF_CURRENT: return "Current while off";
-    case FAULT_SUPPLY_RANGE: return "Supply not 10-28 V";
+    case FAULT_SUPPLY_RANGE: return "Supply not 9-28 V";
     case FAULT_ADC_STALE: return "ADC data stopped";
     case FAULT_PULSE_TIMEOUT: return "Heater pulse timeout";
     case FAULT_SENSOR_UNSTABLE: return "Temp signal dropped";

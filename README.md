@@ -2,7 +2,7 @@
 
 **Firmware mã nguồn mở cho trạm hàn "Trạm hàn v4 by Toanthodien16" — dành cho tay hàn JBC C245 và C210.**
 
-Giao diện ngang rõ nét, điều khiển nhiệt ổn định trên dải nguồn 10–28 V, Boost / Sleep đầy đủ, nhớ cài đặt sau khi tắt nguồn.
+Giao diện ngang rõ nét, điều khiển nhiệt ổn định trên dải nguồn 9–28 V, Boost / Sleep đầy đủ, nhớ cài đặt sau khi tắt nguồn.
 
 <p align="center">
   <img src="docs/images/03_main_ready.png" width="32%" alt="Màn hình chính">
@@ -74,14 +74,14 @@ Giao diện ngang rõ nét, điều khiển nhiệt ổn định trên dải ngu
 | Vi điều khiển | WCH **CH32X033F8P6** (RISC-V, 48 MHz, 62 KB flash, 20 KB RAM) |
 | Màn hình | ST7735 1.8" 128×160, SPI, dùng ngang |
 | Tay hàn | JBC **C245**, JBC **C210** (chọn trong cài đặt; mạch không tự nhận loại) |
-| Nguồn | **10–28 V**. Khuyên dùng **24 V, 8–10 A** cho C245 |
+| Nguồn | **9–28 V**. Khuyên dùng **24 V, 8–10 A** cho C245 |
 | Nạp chương trình | WCH-LinkE (hoặc WCH-Link tương thích) |
 
 Sơ đồ chân mà firmware sử dụng: [docs/HARDWARE.md](docs/HARDWARE.md).
 
 ## Nạp firmware
 
-1. Tải file nạp trong thư mục [`firmware/`](firmware/): [`.hex`](firmware/OpenStation-C245-C210-v1.6.2.hex) hoặc [`.bin`](firmware/OpenStation-C245-C210-v1.6.2.bin) (bấm vào file rồi chọn **Download raw file**). Hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
+1. Tải file nạp trong thư mục [`firmware/`](firmware/): [`.hex`](firmware/OpenStation-C245-C210-v1.6.3.hex) hoặc [`.bin`](firmware/OpenStation-C245-C210-v1.6.3.bin) (bấm vào file rồi chọn **Download raw file**). Hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
 2. Nối WCH-LinkE vào cổng nạp của mạch.
 3. Nạp bằng một trong hai cách:
    - **WCH-LinkUtility:** chọn chip CH32X033, mở file `.hex` rồi bấm nạp. Nếu dùng file `.bin` thì nạp ở địa chỉ `0x08000000`.
@@ -255,7 +255,7 @@ sim/               mô phỏng, benchmark PID, test cài đặt
 docs/              sơ đồ chân, ảnh minh họa, SCREENS.md (tất cả màn hình)
 ```
 
-**Bộ nhớ (bản 1.6.2):** khoảng 51 KB / 60 KB flash dành cho code, khoảng 15 KB / 20 KB RAM.
+**Bộ nhớ (bản 1.6.3):** khoảng 51 KB / 60 KB flash dành cho code, khoảng 15 KB / 20 KB RAM.
 
 ## Lưu ý an toàn
 
@@ -306,7 +306,7 @@ Các ý tưởng đang cân nhắc. Đóng góp được hoan nghênh:
 
 - Landscape UI with anti-aliased fonts, rolling-digit temperatures, a power bar and a live temperature/power chart.
 - Boost (double click; the timer starts once the boost temperature is reached) and sleep with a configurable delay, temperature and heater-off time.
-- Keeps the original author's C245 calibration and PID gains. The controller adds supply-voltage compensation (10–28 V), a learned feedforward, an integral band and room-temperature compensation.
+- Keeps the original author's C245 calibration and PID gains. The controller adds supply-voltage compensation (9–28 V), a learned feedforward, an integral band and room-temperature compensation.
 - C210 uses a conservative profile capped at 300 °C until calibrated with a tip thermometer.
 - The set temperature is saved per handle with a click on the main screen. Settings live in a wear-levelled ring of eight 256-byte flash slots.
 - Build with PlatformIO (`pio run`) or `tools/build.sh`. Host-side simulator and tests are in `sim/`.

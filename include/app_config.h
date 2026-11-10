@@ -6,7 +6,7 @@
 
 /* Release version and separate hardware-debug build counter. */
 #define STATION_FW_NAME "OpenStation C245/C210"
-#define STATION_FW_VERSION "1.6.2"
+#define STATION_FW_VERSION "1.6.3"
 #define STATION_FW_BUILD   1U
 #define STATION_ADC_VREF_MV 3300UL
 #define STATION_ADC_FULL_SCALE 4095UL
@@ -54,7 +54,7 @@
 #define TIP_PRESENT_RAW 3800U
 /* Accepted supply window for both handles. Duty is additionally limited by
  * each tip's rated voltage and power, so 28 V never exceeds those limits. */
-#define VIN_MIN_MV 10000U
+#define VIN_MIN_MV 9000U
 #define VIN_MAX_MV 28000U
 
 #endif

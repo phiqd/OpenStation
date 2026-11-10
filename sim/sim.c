@@ -301,6 +301,18 @@ int main(void)
     check(!safety_latched(), "unplugging while idle after a fault: no false TIP OPEN");
     g_tip_connected = true; run_ms(1000);
 
+    /* Supply window 9-28 V */
+    g_vin_mv = 9200; run_ms(500);
+    if (control_get()->heating_enabled) { in_click(); run_ms(300); }
+    in_click(); run_ms(3000);
+    check(control_get()->heating_enabled && !safety_latched(), "9.2 V supply: heats normally (%s)", st());
+    in_click(); run_ms(300);
+    g_vin_mv = 8500; run_ms(500);
+    in_click(); run_ms(300);
+    check(safety_fault() == FAULT_SUPPLY_RANGE && !control_get()->heating_enabled,
+          "8.5 V supply: refuses to heat with a supply fault");
+    g_vin_mv = 24000; in_click(); run_ms(300);
+
     printf("\n%d check(s) failed, %d settings saves\n", g_fail, g_saves);
     return g_fail ? 1 : 0;
 }
