@@ -246,7 +246,7 @@ static bool s_chart_dirty = true;
 /* Settings menu */
 enum {
     S_TIP, S_BOOST_TEMP, S_BOOST_TIME, S_SLEEP_DELAY, S_SLEEP_TEMP, S_SLEEP_OFF,
-    S_MAX_TEMP, S_ROOM, S_ENC_STEP, S_ENC_DIR,
+    S_MAX_TEMP, S_ROOM, S_SUPPLY, S_ENC_STEP, S_ENC_DIR,
     S_BRIGHT, S_SOUND, S_READY_BEEP, S_TIP_CHECK, S_FLIP, S_CALIBRATE,
     S_RESET, S_ABOUT, S_EXIT, S_COUNT
 };
@@ -670,6 +670,14 @@ static void menu_item_text(uint8_t item, char *label, size_t ln, char *value, si
     case S_SLEEP_OFF: l = "Off after sleep"; snprintf(value, vn, "%u min", control_sleep_off_min()); break;
     case S_MAX_TEMP: l = "Max temp"; fmt_temp(value, vn, (int16_t)control_max_target_c()); break;
     case S_ROOM: l = "Room temp"; fmt_temp(value, vn, profile_ambient_c()); break;
+    case S_SUPPLY: {
+        /* Live reading; turn the knob until it matches a meter. */
+        uint32_t mv = measure_get()->vin_mv + 5U;
+        l = "Supply volts";
+        snprintf(value, vn, "%lu.%02lu V", (unsigned long)(mv / 1000UL),
+                 (unsigned long)((mv / 10UL) % 100UL));
+        break;
+    }
     case S_ENC_STEP: l = "Knob step"; snprintf(value, vn, "%u" DEG "C", control_encoder_step_c()); break;
     case S_ENC_DIR: l = "Knob direction"; snprintf(value, vn, input_encoder_reversed() ? "Reverse" : "Normal"); break;
     case S_BRIGHT: l = "Brightness"; snprintf(value, vn, "%u%%", board_backlight_get()); break;
@@ -1077,6 +1085,9 @@ static void menu_adjust(uint8_t item, int8_t d)
     case S_MAX_TEMP:
         v = (int32_t)control_max_target_c() + d * 10;
         control_set_max_target_c((uint16_t)(v < 150 ? 150 : v));
+        break;
+    case S_SUPPLY:
+        measure_set_vin_trim((int16_t)(measure_vin_trim() + d * 2));
         break;
     case S_ROOM:
         profile_set_ambient_c((int16_t)(profile_ambient_c() + d));

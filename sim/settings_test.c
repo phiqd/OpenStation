@@ -125,6 +125,13 @@ int main(void)
     check(control_get()->target_c == before && control_boost_time_s() == 60,
           "menu save keeps clicked temp %d, not unclicked 380 (%d)", before, control_get()->target_c);
 
+    /* Supply trim survives a power cycle; factory values elsewhere untouched. */
+    measure_set_vin_trim(26);
+    settings_save();
+    boot();
+    check(measure_vin_trim() == 26, "supply trim +2.6%% kept after power cycle (%d)", measure_vin_trim());
+    measure_set_vin_trim(0); settings_save();
+
     /* Migration from a v10 record (firmware 1.0.0-1.4.0) at 0x0800F400. */
     memset(g_flash, 0xFF, sizeof(g_flash));
     settings_record_v10_t old;

@@ -30,4 +30,9 @@ void measure_quiet_eoc_isr(uint16_t temp_raw, uint16_t vin_raw, uint16_t off_cur
 void measure_trigger_current_isr(void);
 void measure_trigger_quiet_isr(void);
 
+/* Supply reading trim in 0.1 % steps (-100..+100), set from the menu so the
+ * shown voltage matches a meter. Stored in settings. */
+int8_t measure_vin_trim(void);
+void measure_set_vin_trim(int16_t trim);
+
 #endif

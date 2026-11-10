@@ -54,7 +54,8 @@ typedef struct {
     int16_t ambient_c;      /* 0 in records written by 1.0.0/1.0.1 = 25 C */
     int16_t cal_c[TIP_COUNT][PROFILE_CAL_POINT_COUNT];
     uint8_t calibrated[TIP_COUNT];
-    uint8_t reserved[2];
+    int8_t vin_trim;               /* supply reading trim, 0.1 % (was reserved) */
+    uint8_t reserved;
     int16_t target_c[TIP_COUNT];   /* last set temperature per handle */
     uint32_t seq;                  /* ring position; excluded from comparisons */
     uint32_t checksum;
@@ -158,6 +159,7 @@ static void capture(settings_record_t *r)
     r->sleep_temp_c = control_sleep_temp_c();
     r->max_target_c = control_max_target_c();
     r->ambient_c = profile_ambient_c();
+    r->vin_trim = measure_vin_trim();
     for (uint8_t i = 0; i < 3U; ++i) r->presets_c[i] = control_preset_c(i);
     for (uint8_t t = 0; t < TIP_COUNT; ++t) {
         memcpy(r->cal_c[t], profile_get(t)->temp_cal_c, sizeof(r->cal_c[t]));
@@ -176,6 +178,7 @@ static void apply(const settings_record_t *r)
     profile_select(r->active_tip < TIP_COUNT ? r->active_tip : TIP_C245);
     control_set_max_target_c(r->max_target_c);
     profile_set_ambient_c(r->ambient_c == 0 ? 25 : r->ambient_c);
+    measure_set_vin_trim(r->vin_trim);
     control_set_encoder_step_c(r->encoder_step_c);
     control_set_boost_delta_c(r->boost_delta_c);
     control_set_boost_time_s(r->boost_time_s);

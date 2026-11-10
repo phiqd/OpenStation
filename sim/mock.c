@@ -23,6 +23,7 @@ uint32_t g_ms;
 uint8_t g_stand_raw = 1, g_vib_raw = 0;
 bool g_tip_connected = true;
 uint32_t g_vin_mv = 24000;
+static int8_t g_vin_trim;
 double g_load_w, g_room_c = 25.0, g_noise_c = 0.0;
 double g_t_heater = 25.0, g_t_tip = 25.0;
 bool g_override; uint8_t g_override_pct;
@@ -51,6 +52,8 @@ static power_status_t g_p;
 const measurement_t *measure_get(void) { return &g_m; }
 void measure_profile_changed(void) { g_m.quiet_sample_valid = true; }
 void measure_requalify_quiet_sample(void) {}
+int8_t measure_vin_trim(void) { return g_vin_trim; }
+void measure_set_vin_trim(int16_t t) { g_vin_trim = (int8_t)(t < -100 ? -100 : (t > 100 ? 100 : t)); }
 const power_status_t *power_get(void) { return &g_p; }
 void power_force_off(void) { g_p.requested_permille = g_p.limited_permille = g_p.pulse_ticks = 0; }
 void power_emergency_stop_isr(void) { power_force_off(); }
@@ -127,7 +130,7 @@ void mock_cycle(void)
     int16_t med = a > b ? (b > c ? b : (a > c ? c : a)) : (a > c ? a : (b > c ? c : b));
 
     g_m.tip_present = g_tip_connected;
-    g_m.vin_mv = g_vin_mv;
+    g_m.vin_mv = (uint32_t)((uint64_t)g_vin_mv * (uint32_t)(1000 + g_vin_trim) / 1000U);
     g_m.vin_valid = profile_supply_in_range(g_vin_mv);
     g_m.quiet_sample_valid = true;
     g_m.temperature_base_c = med;

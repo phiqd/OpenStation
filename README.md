@@ -81,7 +81,7 @@ Sơ đồ chân mà firmware sử dụng: [docs/HARDWARE.md](docs/HARDWARE.md).
 
 ## Nạp firmware
 
-1. Tải file nạp trong thư mục [`firmware/`](firmware/): [`.hex`](firmware/OpenStation-C245-C210-v1.6.3.hex) hoặc [`.bin`](firmware/OpenStation-C245-C210-v1.6.3.bin) (bấm vào file rồi chọn **Download raw file**). Hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
+1. Tải file nạp trong thư mục [`firmware/`](firmware/): [`.hex`](firmware/OpenStation-C245-C210-v1.6.4.hex) hoặc [`.bin`](firmware/OpenStation-C245-C210-v1.6.4.bin) (bấm vào file rồi chọn **Download raw file**). Hoặc tự build (xem [Build từ mã nguồn](#build-từ-mã-nguồn)).
 2. Nối WCH-LinkE vào cổng nạp của mạch.
 3. Nạp bằng một trong hai cách:
    - **WCH-LinkUtility:** chọn chip CH32X033, mở file `.hex` rồi bấm nạp. Nếu dùng file `.bin` thì nạp ở địa chỉ `0x08000000`.
@@ -93,8 +93,9 @@ Cài đặt được lưu ở 2 KB cuối flash. Nạp bản mới thì cài đ�
 
 1. **Chọn đúng tay hàn:** giữ núm 0,8 giây để vào **Settings**, chọn **Handle**. Chọn sai tay hàn sẽ làm nhiệt đọc sai và có thể làm quá nhiệt mũi.
 2. **Đặt nhiệt độ phòng:** **Settings → Room temp**, nhập nhiệt độ phòng thật (ví dụ khoảng 30 °C ở miền Nam). Mạch không có cảm biến nhiệt độ phòng, nên giá trị này được cộng thẳng vào số đo.
-3. **Kiểm tra bằng nhiệt kế đo mũi hàn** ở khoảng 300–350 °C trước khi dùng thật.
-4. **Với C210:** chạy **Calibrate tip** (xem [Hiệu chuẩn tay hàn](#hiệu-chuẩn-tay-hàn)) trước khi dùng trên 300 °C.
+3. **Chỉnh số vôn (nếu lệch):** **Settings → Supply volts** hiện số vôn mạch đang đo. Đo nguồn bằng đồng hồ, bấm vào mục này rồi xoay núm cho đến khi số trên màn khớp với đồng hồ (mỗi nấc 0,2 %, khoảng 0,02 V ở 12 V). Số vôn đúng giúp PID tính công suất chính xác hơn.
+4. **Kiểm tra bằng nhiệt kế đo mũi hàn** ở khoảng 300–350 °C trước khi dùng thật.
+5. **Với C210:** chạy **Calibrate tip** (xem [Hiệu chuẩn tay hàn](#hiệu-chuẩn-tay-hàn)) trước khi dùng trên 300 °C.
 
 ## Cách dùng
 
@@ -142,6 +143,7 @@ Cài đặt tự lưu khi thoát menu, và chỉ ghi flash khi có thay đổi.
 | Off after sleep (ngủ bao lâu thì tắt nung) | 1 … 60 phút | 20 phút |
 | Max temp | 150 … 500 °C | 450 °C |
 | Room temp (nhiệt độ phòng) | 10 … 45 °C | 25 °C |
+| Supply volts (chỉnh số vôn đo cho khớp đồng hồ; Factory reset không xóa) | ±10 % | 0 |
 | Knob step | 1 / 5 / 10 °C | 5 °C |
 | Knob direction, Brightness, Sound, Ready beep, Startup logo, Flip screen | | |
 | Calibrate tip, Factory reset (bấm 2 lần), About, Save and exit | | |
@@ -255,7 +257,7 @@ sim/               mô phỏng, benchmark PID, test cài đặt
 docs/              sơ đồ chân, ảnh minh họa, SCREENS.md (tất cả màn hình)
 ```
 
-**Bộ nhớ (bản 1.6.3):** khoảng 51 KB / 60 KB flash dành cho code, khoảng 15 KB / 20 KB RAM.
+**Bộ nhớ (bản 1.6.4):** khoảng 51 KB / 60 KB flash dành cho code, khoảng 15 KB / 20 KB RAM.
 
 ## Lưu ý an toàn
 

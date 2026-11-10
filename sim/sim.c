@@ -271,7 +271,7 @@ int main(void)
     in_click(); run_ms(300);
     check(profile_active_index() == TIP_C210, "handle switched to C210");
     check(profile_max_temp_c() == 300, "uncalibrated C210 capped at 300");
-    for (int i = 0; i < 15; ++i) in_rotate(1);
+    for (int i = 0; i < 16; ++i) in_rotate(1);
     run_ms(300);
     in_click(); run_ms(300);
     shot("10_cal_intro");
@@ -284,7 +284,7 @@ int main(void)
     shot("12_main_c210");
     in_long(); run_ms(200); in_click(); in_rotate(-1); in_click(); run_ms(200);
     check(profile_active_index() == TIP_C245, "back to C245");
-    for (int i = 0; i < 17; ++i) in_rotate(1);
+    for (int i = 0; i < 18; ++i) in_rotate(1);
     in_click(); run_ms(300);
     shot("13_about");
     in_click(); in_long(); run_ms(2000);
@@ -302,6 +302,19 @@ int main(void)
     g_tip_connected = true; run_ms(1000);
 
     /* Supply window 9-28 V */
+    /* Supply volts trim: board reads 11.70 V on a 12.00 V supply. */
+    g_vin_mv = 11700; run_ms(300);
+    in_long(); run_ms(200);
+    for (int i = 0; i < 8; ++i) in_rotate(1);
+    in_click(); run_ms(200);
+    for (int i = 0; i < 13; ++i) in_rotate(1);
+    run_ms(300);
+    shot("08d_settings_supply");
+    in_click(); in_long(); run_ms(300);
+    check(measure_get()->vin_mv >= 11980 && measure_get()->vin_mv <= 12020 && measure_vin_trim() == 26,
+          "supply trim +2.6%%: 11.70 V reads %lu mV ",
+          (unsigned long)measure_get()->vin_mv);
+    measure_set_vin_trim(0); settings_save();
     g_vin_mv = 9200; run_ms(500);
     if (control_get()->heating_enabled) { in_click(); run_ms(300); }
     in_click(); run_ms(3000);

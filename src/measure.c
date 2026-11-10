@@ -7,6 +7,7 @@
 #include "ch32x035.h"
 
 static measurement_t s_data;
+static int8_t s_vin_trim;   /* supply reading trim, 0.1 % steps */
 static volatile uint16_t s_isr_current;
 static volatile uint16_t s_isr_current_pulse_ticks;
 static volatile bool s_isr_current_pending;
@@ -227,7 +228,8 @@ void measure_process(void)
 
     /* Calibrated board divider ratio. */
     uint32_t pin_mv = ((uint32_t)s_data.vin_filtered_raw * STATION_ADC_VREF_MV) / STATION_ADC_FULL_SCALE;
-    s_data.vin_mv = (pin_mv * STATION_VIN_DIVIDER_X10) / 10UL;
+    s_data.vin_mv = (uint32_t)(((uint64_t)pin_mv * STATION_VIN_DIVIDER_X10 *
+                                (uint32_t)(1000 + s_vin_trim)) / 10000ULL);
     s_data.adc_pin_mv = (uint16_t)(((uint32_t)s_data.temp_filtered_raw * STATION_ADC_VREF_MV) / STATION_ADC_FULL_SCALE);
     s_data.vin_valid = profile_supply_in_range(s_data.vin_mv);
     power_record_cycle_measurement(s_data.current_ma, s_data.vin_mv,
@@ -244,6 +246,13 @@ void measure_process(void)
     s_data.sample_sequence = seq;
     s_data.quiet_sample_valid = true;
     s_new_quiet = true;
+}
+
+int8_t measure_vin_trim(void) { return s_vin_trim; }
+
+void measure_set_vin_trim(int16_t trim)
+{
+    s_vin_trim = (int8_t)(trim < -100 ? -100 : (trim > 100 ? 100 : trim));
 }
 
 const measurement_t *measure_get(void) { return &s_data; }
